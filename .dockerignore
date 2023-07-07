@@ -1,0 +1,13 @@
+node_modules
+lib
+scripts
+npm-debug.log
+Dockerfile
+.idea
+.git
+.gitignore
+.env*
+.eslintrc.js
+cache
+artifacts
+*.iml

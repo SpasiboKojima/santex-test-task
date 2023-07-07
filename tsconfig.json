@@ -1,0 +1,21 @@
+{
+  "include": ["./src"],
+  "compilerOptions": {
+    "lib": ["dom", "es2022"],
+    "rootDirs": ["src"],
+    "outDir": "dist",
+    "module": "es2022",
+    "target": "es2022",
+    "strict": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "allowJs": true,
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  }
+}
