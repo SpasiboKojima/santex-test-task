@@ -1,4 +1,5 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
+import { GraphQLError } from 'graphql'
 import { db } from 'src/db/db'
 import { competition, player, team } from 'src/db/schema/schema'
 import { returnSuccessResponse } from 'src/helpers/Response'
@@ -7,6 +8,7 @@ import { ApiCompetitionResponse, ApiCompetitionTeamsResponse } from './Types'
 
 interface ImportLeagueArgs {
   leagueCode: string
+  teamName?: string
 }
 
 interface TeamArgs {
@@ -15,10 +17,27 @@ interface TeamArgs {
 
 const CompetitionQueries = {
   Query: {
-    players: async (_, { leagueCode }: ImportLeagueArgs) => {
-      const result = await db.select().from(player)
+    players: async (_, { leagueCode, teamName }: ImportLeagueArgs) => {
+      const teamsConditions = [eq(team.leagueCode, leagueCode)]
+      if (teamName) {
+        teamsConditions.push(eq(team.name, teamName))
+      }
+      const teamsResponse = await db
+        .select()
+        .from(team)
+        .where(and(...teamsConditions))
+      const teamNames = teamsResponse.map((team) => team.name)
+      if (!teamNames.length) {
+        throw new GraphQLError('Provided league is not imported', {
+          extensions: {
+            code: 'NOT FOUND',
+            argumentName: 'leagueCode',
+          },
+        })
+      }
+      const players = await db.select().from(player).where(inArray(player.teamName, teamNames))
 
-      return result
+      return players
     },
     team: async (_, { name }: TeamArgs) => {
       const result = await db.select().from(team).where(eq(team.name, name))

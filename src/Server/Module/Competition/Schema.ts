@@ -15,6 +15,7 @@ const CompetitionTypeDefs = `#graphql
 
   type Player {
     name: String
+    teamName: String
     position: String
     dateOfBirth: String
     nationality: String
@@ -27,7 +28,7 @@ const CompetitionTypeDefs = `#graphql
   }
 
   type Query {
-    players(leagueCode: String!): [Player]
+    players(leagueCode: String!, teamName: String): [Player]
     team(name: String!): [Team]
   }
 
