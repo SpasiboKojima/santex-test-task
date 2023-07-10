@@ -11,6 +11,7 @@ const CompetitionTypeDefs = `#graphql
     shortName: String
     areaName: String
     address: String
+    players: [Player]
   }
 
   type Player {

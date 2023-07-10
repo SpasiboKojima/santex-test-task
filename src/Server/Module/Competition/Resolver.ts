@@ -39,11 +39,10 @@ const CompetitionQueries = {
 
       return players
     },
-    team: async (_, { name }: TeamArgs) => {
-      const result = await db.select().from(team).where(eq(team.name, name))
-
-      return result
-    },
+    team: (_, { name }: TeamArgs) => db.select().from(team).where(eq(team.name, name)),
+  },
+  Team: {
+    players: (parent) => db.select().from(player).where(eq(player.teamName, parent.name)),
   },
 }
 

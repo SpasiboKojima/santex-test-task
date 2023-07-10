@@ -21,13 +21,13 @@ export const player = pgTable('player', {
   teamName: text('teamName').references(() => team.name),
   name: text('name'),
   position: text('position'),
-  dateOfBirth: text('dateOfBirth'),
+  dateOfBirth: date('dateOfBirth'),
   nationality: text('nationality'),
 })
 
 export const couch = pgTable('couch', {
   id: serial('id').primaryKey(),
   name: text('name'),
-  dateOfBirth: text('dateOfBirth'),
+  dateOfBirth: date('dateOfBirth'),
   nationality: text('nationality'),
 })
