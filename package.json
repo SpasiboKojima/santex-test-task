@@ -10,7 +10,8 @@
     "watch": "tsx watch src/index.ts",
     "prettier": "prettier --write .",
     "generate": "drizzle-kit generate:pg",
-    "prepare": "pnpm run generate"
+    "prepare": "pnpm run generate",
+    "migrate": "tsx src/db/migrator"
   },
   "keywords": [],
   "author": "",
