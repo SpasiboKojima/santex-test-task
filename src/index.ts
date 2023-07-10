@@ -1,8 +1,10 @@
-import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
+import 'dotenv/config'
 
-import { CompetitionMutations, CompetitionQueries } from './Server/Module/Competition/Resolver';
-import { CompetitionTypeDefs } from './Server/Module/Competition/Schema';
+import { ApolloServer } from '@apollo/server'
+import { startStandaloneServer } from '@apollo/server/standalone'
+
+import { CompetitionMutations, CompetitionQueries } from './Server/Module/Competition/Resolver'
+import { CompetitionTypeDefs } from './Server/Module/Competition/Schema'
 
 const server = new ApolloServer({
   typeDefs: CompetitionTypeDefs,

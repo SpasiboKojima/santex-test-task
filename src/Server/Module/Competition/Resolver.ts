@@ -50,14 +50,14 @@ const CompetitionMutations = {
   Mutation: {
     importLeague: async (_, { leagueCode }: ImportLeagueArgs) => {
       const competitionResponse: ApiCompetitionResponse = await fetch(`https://api.football-data.org/v4/competitions/${leagueCode}`, {
-        headers: [['X-Auth-Token', '']],
+        headers: [['X-Auth-Token', process.env.FOOTBALL_API_TOKEN]],
       }).then((response) => response.json())
 
       const competitionObj = { name: competitionResponse.name, code: competitionResponse.code, areaName: competitionResponse.area.name }
       await db.insert(competition).values(competitionObj)
 
       const teamsResponse: ApiCompetitionTeamsResponse = await fetch(`https://api.football-data.org/v4/competitions/${leagueCode}/teams`, {
-        headers: [['X-Auth-Token', '']],
+        headers: [['X-Auth-Token', process.env.FOOTBALL_API_TOKEN]],
       }).then((response) => response.json())
 
       const teams = teamsResponse.teams.map((team) => ({
