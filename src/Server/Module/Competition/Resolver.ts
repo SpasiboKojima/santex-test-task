@@ -1,3 +1,4 @@
+import axios, { AxiosError } from 'axios'
 import { and, eq, inArray } from 'drizzle-orm'
 import { GraphQLError } from 'graphql'
 import { db } from 'src/db/db'
@@ -49,36 +50,62 @@ const CompetitionQueries = {
 const CompetitionMutations = {
   Mutation: {
     importLeague: async (_, { leagueCode }: ImportLeagueArgs) => {
-      const competitionResponse: ApiCompetitionResponse = await fetch(`https://api.football-data.org/v4/competitions/${leagueCode}`, {
-        headers: [['X-Auth-Token', process.env.FOOTBALL_API_TOKEN]],
-      }).then((response) => response.json())
+      try {
+        const competitionResponse = await axios.get<ApiCompetitionResponse>(`https://api.football-data.org/v4/competitions/${leagueCode}`, {
+          headers: { 'X-Auth-Token': process.env.FOOTBALL_API_TOKEN },
+        })
+        const { data: competitionData } = competitionResponse
 
-      const competitionObj = { name: competitionResponse.name, code: competitionResponse.code, areaName: competitionResponse.area.name }
-      await db.insert(competition).values(competitionObj)
+        const competitionObj = { name: competitionData.name, code: competitionData.code, areaName: competitionData.area.name }
 
-      const teamsResponse: ApiCompetitionTeamsResponse = await fetch(`https://api.football-data.org/v4/competitions/${leagueCode}/teams`, {
-        headers: [['X-Auth-Token', process.env.FOOTBALL_API_TOKEN]],
-      }).then((response) => response.json())
+        await db.insert(competition).values(competitionObj).onConflictDoNothing()
 
-      const teams = teamsResponse.teams.map((team) => ({
-        name: team.name,
-        tla: team.tla,
-        shortName: team.shortName,
-        areaName: team.area.name,
-        address: team.address,
-        players: team.squad.map((player) => ({
-          name: player.name,
-          position: player.position,
-          dateOfBirth: player.dateOfBirth,
-          nationality: player.nationality,
-        })),
-      }))
-      await db.insert(team).values(teams)
+        const teamsResponse = await axios.get<ApiCompetitionTeamsResponse>(
+          `https://api.football-data.org/v4/competitions/${leagueCode}/teams`,
+          {
+            headers: { 'X-Auth-Token': process.env.FOOTBALL_API_TOKEN },
+          },
+        )
+        const { data: teamsData } = teamsResponse
 
-      return returnSuccessResponse({
-        competition: competitionObj,
-        teams,
-      })
+        const teams = teamsData.teams.map((team) => ({
+          id: team.id,
+          name: team.name,
+          leagueCode: teamsData.competition.code,
+          tla: team.tla,
+          shortName: team.shortName,
+          areaName: team.area.name,
+          address: team.address,
+          players: team.squad.map((player) => ({
+            id: player.id,
+            name: player.name,
+            teamName: team.name,
+            position: player.position,
+            dateOfBirth: player.dateOfBirth,
+            nationality: player.nationality,
+          })),
+        }))
+
+        await db.insert(team).values(teams).onConflictDoNothing()
+
+        const players = teams.map((team) => team.players).flatMap((player) => player)
+        await db.insert(player).values(players).onConflictDoNothing()
+
+        return returnSuccessResponse({
+          competition: competitionObj,
+          teams,
+        })
+      } catch (err: unknown) {
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 429)
+            throw new GraphQLError('API limit  hit, league is not imported', {
+              extensions: {
+                code: 'TOO MANY REQUESTS',
+              },
+            })
+        }
+        throw new GraphQLError('League import failed')
+      }
     },
   },
 }

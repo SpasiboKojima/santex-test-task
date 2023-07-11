@@ -21,3 +21,7 @@ pnpm i
 ```
 pnpm migrate
 ```
+3. To run in development mode watching changes use
+```
+pnpm watch
+```

@@ -1,4 +1,4 @@
-import { pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { date, integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
 
 export const competition = pgTable('competition', {
   name: text('name'),
@@ -7,7 +7,7 @@ export const competition = pgTable('competition', {
 })
 
 export const team = pgTable('team', {
-  id: serial('id').primaryKey(),
+  id: integer('id').primaryKey(),
   name: text('name').notNull(),
   leagueCode: text('leagueCode').references(() => competition.code),
   tla: text('tla'),
@@ -17,7 +17,7 @@ export const team = pgTable('team', {
 })
 
 export const player = pgTable('player', {
-  id: serial('id').primaryKey(),
+  id: integer('id').primaryKey(),
   teamName: text('teamName').references(() => team.name),
   name: text('name'),
   position: text('position'),
