@@ -9,7 +9,7 @@
     "start": "tsx src/index.ts",
     "watch": "tsx watch src/index.ts",
     "prettier": "prettier --write .",
-    "generate": "drizzle-kit generate:pg",
+    "generate": "npx drizzle-kit generate:pg",
     "prepare": "pnpm run generate",
     "migrate": "tsx src/db/migrator"
   },
